@@ -12,6 +12,11 @@ const { values, positionals } = parseArgs({
       type: "boolean",
       description: "Include files that match .gitignore patterns",
     },
+    ls: {
+      type: "boolean",
+      description: "List matching files without showing their contents",
+      short: "l",
+    },
   },
   allowPositionals: true,
 });
@@ -41,6 +46,21 @@ try {
   if (filteredFiles.length === 0) {
     console.error("No files found matching the provided patterns");
     process.exit(1);
+  }
+
+  if (values.ls) {
+    const output = filteredFiles.join("\n");
+    if (values.clipboard) {
+      const proc = Bun.spawn(["pbcopy"], {
+        stdin: "pipe",
+      });
+      proc.stdin.write(output);
+      await proc.stdin.end();
+      await proc.exited;
+    } else {
+      console.log(output);
+    }
+    process.exit(0);
   }
 
   const result = await Promise.all(

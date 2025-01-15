@@ -5,7 +5,7 @@ A CLI tool to scoop up file contents using glob patterns.
 ## Installation
 
 ```bash
-bun install -g scoop
+bun install -g github:sam-goodwin/scoop
 ```
 
 ## Usage
@@ -28,13 +28,17 @@ scoop "**/*" -e "node_modules/**/*" -e "dist/**/*"
 # Copy to clipboard with -c flag
 scoop "src/**/*.ts" -c
 
+# List matching files without contents (--ls or -l)
+scoop "src/**/*.ts" --ls
+scoop "src/**/*.ts" -l
+
 # Include files that match .gitignore patterns
 scoop "**/*" --include-gitignore
 ```
 
 By default, scoop respects your .gitignore patterns, excluding any files that match. Use the `--include-gitignore` flag to include files that would normally be ignored.
 
-The output includes file paths as comments followed by their contents:
+The output includes file paths as comments followed by their contents (unless using --ls/-l):
 
 ```ts
 // src/utils.ts

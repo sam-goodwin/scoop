@@ -70,4 +70,53 @@ describe("scoop", () => {
     const { stderr } = await runScoop(["test/fixtures/nonexistent/**/*"]);
     expect(stderr).toContain("No files found matching the provided patterns");
   });
+
+  describe("ls flag", () => {
+    test("should list files without contents", async () => {
+      const { stdout } = await runScoop(["test/fixtures/src/**/*.ts", "--ls"]);
+
+      expect(stdout.trim()).toBe(
+        "test/fixtures/src/main.ts\ntest/fixtures/src/utils.ts",
+      );
+      expect(stdout).not.toContain("export function");
+    });
+
+    test("should work with short form -l", async () => {
+      const { stdout } = await runScoop(["test/fixtures/src/**/*.ts", "-l"]);
+
+      expect(stdout.trim()).toBe(
+        "test/fixtures/src/main.ts\ntest/fixtures/src/utils.ts",
+      );
+      expect(stdout).not.toContain("export function");
+    });
+
+    test("should list files with multiple patterns", async () => {
+      const { stdout } = await runScoop([
+        "test/fixtures/src/*.ts",
+        "test/fixtures/lib/*.js",
+        "--ls",
+      ]);
+
+      const files = stdout.split("\n");
+      expect(files).toContain("test/fixtures/src/main.ts");
+      expect(files).toContain("test/fixtures/src/utils.ts");
+      expect(files).toContain("test/fixtures/lib/helpers.js");
+      expect(stdout).not.toContain("export function");
+    });
+
+    test("should respect exclude patterns with ls flag", async () => {
+      const { stdout } = await runScoop([
+        "test/fixtures/**/*.*",
+        "-e",
+        "test/fixtures/docs/**/*",
+        "--ls",
+      ]);
+
+      const files = stdout.split("\n");
+      expect(files).toContain("test/fixtures/src/main.ts");
+      expect(files).toContain("test/fixtures/src/utils.ts");
+      expect(files).toContain("test/fixtures/lib/helpers.js");
+      expect(files).not.toContain("test/fixtures/docs/README.md");
+    });
+  });
 });
