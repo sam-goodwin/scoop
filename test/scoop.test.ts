@@ -90,6 +90,19 @@ describe("scoop", () => {
       expect(stdout).not.toContain("export function");
     });
 
+    test("should respect .gitignore patterns", async () => {
+      const { stdout } = await runScoop(["ls", "test/fixtures/**/*.ts"]);
+
+      const files = stdout
+        .split("\n")
+        .map((f) => f.trim())
+        .filter(Boolean);
+      expect(files).not.toContain(
+        "test/fixtures/node_modules/some-pkg/index.ts",
+      );
+      expect(files).toContain("test/fixtures/src/main.ts");
+    });
+
     test("should list files with multiple patterns", async () => {
       const { stdout } = await runScoop([
         "ls",

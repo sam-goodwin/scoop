@@ -113,12 +113,18 @@ async function readGitignorePatterns(): Promise<string[]> {
 
 function isIgnored(file: string, patterns: string[]): boolean {
   return patterns.some((pattern) => {
+    // Remove trailing slash if present
+    pattern = pattern.replace(/\/$/, "");
+
     // Convert glob pattern to regex
-    const regex = new RegExp(
-      "^" +
-        pattern.replace(/\./g, "\\.").replace(/\*/g, ".*").replace(/\?/g, ".") +
-        "$",
-    );
+    // Escape special regex chars except * and ?
+    const regexPattern = pattern
+      .replace(/[.+^${}()|[\]\\]/g, "\\$&")
+      .replace(/\*/g, ".*")
+      .replace(/\?/g, ".");
+
+    // Match anywhere in the path for .gitignore style patterns
+    const regex = new RegExp(regexPattern);
     return regex.test(file);
   });
 }
