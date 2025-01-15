@@ -18,71 +18,71 @@ async function runScoop(
 }
 
 describe("scoop", () => {
-  test("should glob TypeScript files", async () => {
-    const { stdout } = await runScoop(["test/fixtures/src/**/*.ts"]);
+  describe("up command", () => {
+    test("should glob TypeScript files", async () => {
+      const { stdout } = await runScoop(["up", "test/fixtures/src/**/*.ts"]);
 
-    expect(stdout).toContain("// test/fixtures/src/main.ts");
-    expect(stdout).toContain("export function add");
-    expect(stdout).toContain("// test/fixtures/src/utils.ts");
-    expect(stdout).toContain("export function capitalize");
-  });
-
-  test("should exclude files", async () => {
-    const { stdout } = await runScoop([
-      "test/fixtures/**/*.*",
-      "-e",
-      "test/fixtures/docs/**/*",
-    ]);
-
-    expect(stdout).toContain("// test/fixtures/src/main.ts");
-    expect(stdout).toContain("// test/fixtures/src/utils.ts");
-    expect(stdout).toContain("// test/fixtures/lib/helpers.js");
-    expect(stdout).not.toContain("# Test Project");
-  });
-
-  test("should handle multiple glob patterns", async () => {
-    const { stdout } = await runScoop([
-      "test/fixtures/src/*.ts",
-      "test/fixtures/lib/*.js",
-    ]);
-
-    expect(stdout).toContain("// test/fixtures/src/main.ts");
-    expect(stdout).toContain("// test/fixtures/src/utils.ts");
-    expect(stdout).toContain("// test/fixtures/lib/helpers.js");
-  });
-
-  test("should handle multiple exclude patterns", async () => {
-    const { stdout } = await runScoop([
-      "test/fixtures/**/*.*",
-      "-e",
-      "test/fixtures/docs/**/*",
-      "-e",
-      "test/fixtures/lib/**/*",
-    ]);
-
-    expect(stdout).toContain("// test/fixtures/src/main.ts");
-    expect(stdout).toContain("// test/fixtures/src/utils.ts");
-    expect(stdout).not.toContain("helpers.js");
-    expect(stdout).not.toContain("README.md");
-  });
-
-  test("should error when no files found", async () => {
-    const { stderr } = await runScoop(["test/fixtures/nonexistent/**/*"]);
-    expect(stderr).toContain("No files found matching the provided patterns");
-  });
-
-  describe("ls flag", () => {
-    test("should list files without contents", async () => {
-      const { stdout } = await runScoop(["test/fixtures/src/**/*.ts", "--ls"]);
-
-      expect(stdout.trim()).toBe(
-        "test/fixtures/src/main.ts\ntest/fixtures/src/utils.ts",
-      );
-      expect(stdout).not.toContain("export function");
+      expect(stdout).toContain("// test/fixtures/src/main.ts");
+      expect(stdout).toContain("export function add");
+      expect(stdout).toContain("// test/fixtures/src/utils.ts");
+      expect(stdout).toContain("export function capitalize");
     });
 
-    test("should work with short form -l", async () => {
-      const { stdout } = await runScoop(["test/fixtures/src/**/*.ts", "-l"]);
+    test("should work without explicit up command", async () => {
+      const { stdout } = await runScoop(["test/fixtures/src/**/*.ts"]);
+
+      expect(stdout).toContain("// test/fixtures/src/main.ts");
+      expect(stdout).toContain("export function add");
+      expect(stdout).toContain("// test/fixtures/src/utils.ts");
+      expect(stdout).toContain("export function capitalize");
+    });
+
+    test("should exclude files", async () => {
+      const { stdout } = await runScoop([
+        "up",
+        "test/fixtures/**/*.*",
+        "-e",
+        "test/fixtures/docs/**/*",
+      ]);
+
+      expect(stdout).toContain("// test/fixtures/src/main.ts");
+      expect(stdout).toContain("// test/fixtures/src/utils.ts");
+      expect(stdout).toContain("// test/fixtures/lib/helpers.js");
+      expect(stdout).not.toContain("# Test Project");
+    });
+
+    test("should handle multiple glob patterns", async () => {
+      const { stdout } = await runScoop([
+        "up",
+        "test/fixtures/src/*.ts",
+        "test/fixtures/lib/*.js",
+      ]);
+
+      expect(stdout).toContain("// test/fixtures/src/main.ts");
+      expect(stdout).toContain("// test/fixtures/src/utils.ts");
+      expect(stdout).toContain("// test/fixtures/lib/helpers.js");
+    });
+
+    test("should handle multiple exclude patterns", async () => {
+      const { stdout } = await runScoop([
+        "up",
+        "test/fixtures/**/*.*",
+        "-e",
+        "test/fixtures/docs/**/*",
+        "-e",
+        "test/fixtures/lib/**/*",
+      ]);
+
+      expect(stdout).toContain("// test/fixtures/src/main.ts");
+      expect(stdout).toContain("// test/fixtures/src/utils.ts");
+      expect(stdout).not.toContain("helpers.js");
+      expect(stdout).not.toContain("README.md");
+    });
+  });
+
+  describe("ls command", () => {
+    test("should list files without contents", async () => {
+      const { stdout } = await runScoop(["ls", "test/fixtures/src/**/*.ts"]);
 
       expect(stdout.trim()).toBe(
         "test/fixtures/src/main.ts\ntest/fixtures/src/utils.ts",
@@ -92,9 +92,9 @@ describe("scoop", () => {
 
     test("should list files with multiple patterns", async () => {
       const { stdout } = await runScoop([
+        "ls",
         "test/fixtures/src/*.ts",
         "test/fixtures/lib/*.js",
-        "--ls",
       ]);
 
       const files = stdout.split("\n");
@@ -104,12 +104,12 @@ describe("scoop", () => {
       expect(stdout).not.toContain("export function");
     });
 
-    test("should respect exclude patterns with ls flag", async () => {
+    test("should respect exclude patterns", async () => {
       const { stdout } = await runScoop([
+        "ls",
         "test/fixtures/**/*.*",
         "-e",
         "test/fixtures/docs/**/*",
-        "--ls",
       ]);
 
       const files = stdout.split("\n");
@@ -118,5 +118,10 @@ describe("scoop", () => {
       expect(files).toContain("test/fixtures/lib/helpers.js");
       expect(files).not.toContain("test/fixtures/docs/README.md");
     });
+  });
+
+  test("should error when no files found", async () => {
+    const { stderr } = await runScoop(["test/fixtures/nonexistent/**/*"]);
+    expect(stderr).toContain("No files found matching the provided patterns");
   });
 });

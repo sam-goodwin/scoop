@@ -3,19 +3,19 @@
 import { Glob } from "bun";
 import { parseArgs } from "util";
 
+// Get the subcommand (first argument)
+const subcommand =
+  Bun.argv[2] === "ls" || Bun.argv[2] === "up" ? Bun.argv[2] : "up";
+const args = subcommand === Bun.argv[2] ? Bun.argv.slice(3) : Bun.argv.slice(2);
+
 const { values, positionals } = parseArgs({
-  args: Bun.argv.slice(2),
+  args,
   options: {
     clipboard: { type: "boolean", short: "c" },
     exclude: { type: "string", short: "e", multiple: true },
     includeGitignore: {
       type: "boolean",
       description: "Include files that match .gitignore patterns",
-    },
-    ls: {
-      type: "boolean",
-      description: "List matching files without showing their contents",
-      short: "l",
     },
   },
   allowPositionals: true,
@@ -24,7 +24,7 @@ const { values, positionals } = parseArgs({
 if (positionals.length === 0) {
   console.error("Error: At least one glob pattern is required");
   console.error(
-    "Usage: scoop <glob-pattern...> [-e exclude-pattern...] [-c] [--include-gitignore]",
+    "Usage: scoop [up|ls] <glob-pattern...> [-e exclude-pattern...] [-c] [--include-gitignore]",
   );
   process.exit(1);
 }
@@ -48,7 +48,7 @@ try {
     process.exit(1);
   }
 
-  if (values.ls) {
+  if (subcommand === "ls") {
     const output = filteredFiles.join("\n");
     if (values.clipboard) {
       const proc = Bun.spawn(["pbcopy"], {
@@ -63,6 +63,7 @@ try {
     process.exit(0);
   }
 
+  // "up" subcommand (default)
   const result = await Promise.all(
     filteredFiles.map(async (file: string) => {
       const content = await Bun.file(file).text();

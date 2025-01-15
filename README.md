@@ -10,35 +10,40 @@ bun install -g github:sam-goodwin/scoop
 
 ## Usage
 
-Scoop up some files:
+Scoop has two main commands:
+
+- `up` (default): scoop up file contents
+- `ls`: list matching files without contents
 
 ```bash
-# Basic glob pattern
+# Basic glob pattern (using default 'up' command)
 scoop "src/**/*.ts"
+# or explicitly
+scoop up "src/**/*.ts"
+
+# List matching files without contents
+scoop ls "src/**/*.ts"
 
 # Multiple patterns
-scoop "src/**/*.ts" "lib/**/*.js"
+scoop up "src/**/*.ts" "lib/**/*.js"
 
 # Exclude patterns with -e flag
-scoop "src/**/*" -e "src/**/*.test.ts"
+scoop up "src/**/*" -e "src/**/*.test.ts"
 
 # Multiple excludes
-scoop "**/*" -e "node_modules/**/*" -e "dist/**/*"
+scoop up "**/*" -e "node_modules/**/*" -e "dist/**/*"
 
-# Copy to clipboard with -c flag
-scoop "src/**/*.ts" -c
-
-# List matching files without contents (--ls or -l)
-scoop "src/**/*.ts" --ls
-scoop "src/**/*.ts" -l
+# Copy to clipboard with -c flag (works with both 'up' and 'ls')
+scoop up "src/**/*.ts" -c
+scoop ls "src/**/*.ts" -c
 
 # Include files that match .gitignore patterns
-scoop "**/*" --include-gitignore
+scoop up "**/*" --include-gitignore
 ```
 
 By default, scoop respects your .gitignore patterns, excluding any files that match. Use the `--include-gitignore` flag to include files that would normally be ignored.
 
-The output includes file paths as comments followed by their contents (unless using --ls/-l):
+The `up` command output includes file paths as comments followed by their contents:
 
 ```ts
 // src/utils.ts
@@ -55,8 +60,8 @@ All status messages are written to stderr, so you can safely pipe the output:
 
 ```bash
 # Pipe to a file
-scoop "src/**/*.ts" > files.txt
+scoop up "src/**/*.ts" > files.txt
 
 # Pipe to another command
-scoop "src/**/*.ts" | grep "function"
+scoop up "src/**/*.ts" | grep "function"
 ```
